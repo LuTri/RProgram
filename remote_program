@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import configparser
+
 import random
 import string
 import argparse
@@ -80,8 +82,25 @@ def push_and_program(remote, gittarget, directory):
             cmd_output(['git', 'reset', 'HEAD~1'])
 
 if __name__ == '__main__':
+    cparser = configparser.ConfigParser({
+        'gittarget': None,
+        'host': None,
+        'remote_dir':None
+    })
+    if not ('config.ini' in cparser.read('config.ini')):
+        print "Warning, no config file found..."
+
     arguments = parser.parse_args()
-    if not arguments.gittarget or not arguments.remote and not arguments.directory:
+
+    gittarget = arguments.gittarget or cparser.get('remote', 'gitremote')
+    remote = arguments.remote or cparser.get('remote', 'host')
+    directory = arguments.directory or cparser.get('remote', 'remote_dir')
+
+    print gittarget
+    print remote
+    print directory
+
+    if not gittarget or not remote and not directory:
         raise argparse.ArgumentError(None, 'Please provide all parameters.')
 
     push_and_program(arguments.remote, arguments.gittarget, arguments.directory)
