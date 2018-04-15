@@ -82,23 +82,24 @@ def push_and_program(remote, gittarget, directory):
             cmd_output(['git', 'reset', 'HEAD~1'])
 
 if __name__ == '__main__':
-    cparser = configparser.ConfigParser({
-        'gittarget': None,
-        'host': None,
-        'remote_dir':None
-    })
+    cparser = configparser.ConfigParser()
     if not ('config.ini' in cparser.read('config.ini')):
         print "Warning, no config file found..."
 
     arguments = parser.parse_args()
 
-    gittarget = arguments.gittarget or cparser.get('remote', 'gitremote')
-    remote = arguments.remote or cparser.get('remote', 'host')
-    directory = arguments.directory or cparser.get('remote', 'remote_dir')
+    def get_or_none(p, k,v):
+        return p.get(s, o) if p.has_option(s,o) else None
+    if cparser.has_section('remote'):
+        c_target = get_or_none(cparser, 'remote', 'gitremote')
+        c_remote = get_or_none(cparser, 'remote', 'host')
+        c_directory = get_or_none(cparser, 'remote', 'remote_dir')
+    else:
+        c_target = c_remote = c_directory = None
 
-    print gittarget
-    print remote
-    print directory
+    gittarget = arguments.gittarget or c_target
+    remote = arguments.remote or c_remote
+    directory = arguments.directory or c_directory
 
     if not gittarget or not remote and not directory:
         raise argparse.ArgumentError(None, 'Please provide all parameters.')
