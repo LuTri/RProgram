@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     arguments = parser.parse_args()
 
-    def get_or_none(p, k,v):
+    def get_or_none(p, s, o):
         return p.get(s, o) if p.has_option(s,o) else None
     if cparser.has_section('remote'):
         c_target = get_or_none(cparser, 'remote', 'gitremote')
