@@ -2,3 +2,4 @@
 host=layla
 gitremote=layla
 remote_dir=projects/AVRMusicTable
+maketarget=program

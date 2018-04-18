@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-r', '--remote', help='Hostname of the remote platform', default=None)
 parser.add_argument('-g', '--gittarget', help='Name of git remote', default=None)
 parser.add_argument('-d', '--directory', help='Path to AVRMusicTable on remote plaftorm', default=None)
+parser.add_argument('-t', '--maketarget', help='The `make` target', default='program')
 
 def cmd_output(arr):
     try:
@@ -22,7 +23,7 @@ def cmd_output(arr):
         print e.output
         raise e
 
-def push_and_program(remote, gittarget, directory):
+def push_and_program(remote, gittarget, directory, maketarget):
     is_committed = False
     is_tagged = False
     is_remote_tagged = False
@@ -66,7 +67,8 @@ def push_and_program(remote, gittarget, directory):
 
         print "Programming mc on " + remote
         cmd_output(['ssh', remote,
-                    'cd {} && make clean && make program || make program'.format(directory)])
+                    'cd {} && make clean && make {}'.format(directory,
+                                                            maketarget)])
 
     finally:
         print "Cleaning up!"
@@ -94,18 +96,16 @@ if __name__ == '__main__':
         c_target = get_or_none(cparser, 'remote', 'gitremote')
         c_remote = get_or_none(cparser, 'remote', 'host')
         c_directory = get_or_none(cparser, 'remote', 'remote_dir')
+        c_make = get_or_none(cparser, 'remote', 'maketarget')
     else:
-        c_target = c_remote = c_directory = None
+        c_target = c_remote = c_directory = c_make = None
 
     gittarget = c_target or arguments.gittarget
     remote = c_remote or arguments.remote
     directory = c_directory or arguments.directory
-
-    print gittarget
-    print remote
-    print directory
+    maketarget = c_make or arguments.maketarget
 
     if not gittarget or not remote and not directory:
         raise argparse.ArgumentError(None, 'Please provide all parameters.')
 
-    push_and_program(remote, gittarget, directory)
+    push_and_program(remote, gittarget, directory, maketarget)
